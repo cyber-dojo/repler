@@ -7,6 +7,15 @@ log = logging.getLogger()
 
 
 class Handler:
+    """HTTP request handlers for the server.
+
+    Args:
+        image_name: the name of the docker image to use for REPL containers.
+        network_name: The name of the docker network to use for the container.
+        repl_port: The port on which the REPL container will handle HTTP
+            traffic.
+    """
+
     _containers = set()
 
     def __init__(self, image_name, network_name, repl_port):
@@ -16,6 +25,8 @@ class Handler:
 
     @classmethod
     async def clean_up_containers(cls, app):
+        """Removes any REPL containers that are still open.
+        """
         for container in cls._containers:
             log.info('cleaning up container: %s', container.name)
             container.stop()
@@ -26,20 +37,23 @@ class Handler:
 
     @staticmethod
     def _container_name(kata, animal):
-        return 'cyberdojo-repl-container-python-{}-{}'.format(kata, animal)
+        """Calculate the name of the container for a given kata/animal pair.
+        """
+        return 'cyber-dojo-repl-container-python-{}-{}'.format(kata, animal)
 
     async def create_repl_handler(self, request):
+        """Create a new REPL container.
+
+        This will create a new container based on the image `self.image_name`
+        and run it. This will also send a request to that container to start a
+        new REPL.
+        """
+
         kata = request.match_info['kata']
         animal = request.match_info['animal']
 
-        # TODO: Check that a container of this name doesn't already exist!
-
-        # TODO: How do we inject the user's files into the container?
-
         client = request.app['docker_client']
         name = self._container_name(kata, animal)
-
-        log.info('network: %s, name: %s', self.network_name, name)
 
         container = client.containers.run(
             image=self.image_name,
@@ -55,8 +69,6 @@ class Handler:
         while container.status != 'running':
             container.reload()
 
-        # TODO: This is a hack. How can we be sure that the container is
-        # running and ready for traffic?
         await asyncio.sleep(2)
 
         # Request that the REPL process is started
@@ -68,6 +80,12 @@ class Handler:
         return web.Response(status=web.HTTPCreated.status_code)
 
     async def delete_repl_handler(self, request):
+        """Delete a REPL container.
+
+        This will stop and remove an existing REPL container corresponding to
+        the specified kata/animal pair.
+        """
+
         kata = request.match_info['kata']
         animal = request.match_info['animal']
 
@@ -86,7 +104,7 @@ class Handler:
         return web.Response(status=web.HTTPOk.status_code)
 
     async def websocket_handler(self, request):
-        """Create a websocket to the caller, piping it bidirectionally with the
+        """Create a websocket to the caller, piping it bi-directionally with the
         websocket on the REPL container.
         """
 
@@ -103,16 +121,16 @@ class Handler:
         repl_socket = await request.app['client_session'].ws_connect(url)
 
         async def pipe_repl_to_client():
+            "Forward messages from the REPL websocket to the client websocket."
             async for msg in repl_socket:
-                # TODO: Need to check msg.type? could be CLOSED or ERROR.
                 log.info('from repl: %s', msg.data)
                 await caller_socket.send_str(msg.data)
 
         repl_to_client_task = request.app.loop.create_task(
             pipe_repl_to_client())
 
+        # Forward messages from the client websocket to the REPL websocket.
         async for msg in caller_socket:
-            # TODO: Need to check msg.type? could be CLOSED or ERROR.
             log.info('from client ws: %s', msg.data)
             await repl_socket.send_str(msg.data)
 

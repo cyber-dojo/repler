@@ -1,3 +1,6 @@
+"""Main program for the cyber-dojo runner_repl web_app.
+"""
+
 import argparse
 import logging
 

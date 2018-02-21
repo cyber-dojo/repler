@@ -1,3 +1,6 @@
+"""Create an run the aiohttp Application.
+"""
+
 import aiohttp
 from aiohttp import web
 import docker
@@ -6,10 +9,10 @@ from .handlers import Handler
 from .middleware import docker_exceptions_middleware
 
 
-def create_app():
+def _create_app():
     """Construct an Application instance.
 
-    It will be configured with middleware, startup, and shutdown handlers.
+    It will be configured with middleware and startup/shutdown handlers.
     """
     app = web.Application()
 
@@ -27,9 +30,8 @@ def create_app():
     return app
 
 
-def configure_routes(app):
+def _configure_routes(app):
     "Add routes to the application."
-    # TODO: These values need to be passed on somehow
     router = Handler(image_name='cyberdojo/repl_container_python',
                      network_name='cyber-dojo',
                      repl_port=4647)
@@ -43,6 +45,6 @@ def configure_routes(app):
 def run(port):
     """Create and run an app.
     """
-    app = create_app()
-    configure_routes(app)
+    app = _create_app()
+    _configure_routes(app)
     web.run_app(app, port=port)
