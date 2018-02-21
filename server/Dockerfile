@@ -11,14 +11,14 @@ bash \
 python3 \
 tar
 
-ARG            CYBER_DOJO_RUNNER_HOME
-WORKDIR      ${CYBER_DOJO_RUNNER_HOME}
+ARG CYBER_DOJO_RUNNER_HOME
+WORKDIR ${CYBER_DOJO_RUNNER_HOME}
 
 COPY . ${CYBER_DOJO_RUNNER_HOME}
 RUN pip3 install -r requirements.txt
 
 ARG PORT
 EXPOSE ${PORT}
-ENV PORT=${PORT}
+ENV PORT ${PORT}
 
-CMD ["python3", "src/server.py"]
+CMD [ "./up.sh" ]
