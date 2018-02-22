@@ -39,7 +39,12 @@ class Handler:
     def _container_name(kata, animal):
         """Calculate the name of the container for a given kata/animal pair.
         """
-        return 'cyber-dojo-repl-container-python-{}-{}'.format(kata, animal)
+
+        # Important: this accounts for docker's limitation that container names
+        # can only be lower case. The user might (and probably will) include
+        # upper-case letters in their kata and animal names. We lower-case
+        # those here.
+        return 'cyber-dojo-repl-container-python-{}-{}'.format(kata.lower(), animal.lower())
 
     async def create_repl_handler(self, request):
         """Create a new REPL container.
