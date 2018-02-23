@@ -121,11 +121,13 @@ class Handler:
             repl_to_client_task = request.app.loop.create_task(
                 pipe_repl_to_client())
 
-            # Forward messages from the client websocket to the REPL websocket.
-            async for msg in ws:
-                log.info('from client ws: %s', msg)
-                await repl_socket.send(msg)
+            try:
+                # Forward messages from the client websocket to the REPL websocket.
+                async for msg in ws:
+                    log.info('from client ws: %s', msg)
+                    await repl_socket.send(msg)
 
-            repl_to_client_task.cancel()
+            finally:
+                repl_to_client_task.cancel()
 
             log.info('exiting websocket handler: kata=%s animal=%s', kata, animal)
