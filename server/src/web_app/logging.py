@@ -1,8 +1,6 @@
 """Configuration of the logging system.
 """
 
-import logging.config
-
 
 def logging_config(level):
     """Configure the logging system.
