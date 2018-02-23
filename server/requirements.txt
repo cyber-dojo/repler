@@ -1,2 +1,4 @@
-aiohttp
+aiohttp # for async requests
 docker
+sanic
+websockets

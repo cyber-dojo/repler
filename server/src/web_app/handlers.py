@@ -1,7 +1,8 @@
 import asyncio
 import logging
 
-from aiohttp import web
+import sanic.response
+import websockets
 
 log = logging.getLogger()
 
@@ -24,7 +25,7 @@ class Handler:
         self.repl_port = repl_port
 
     @classmethod
-    async def clean_up_containers(cls, app):
+    async def clean_up_containers(cls):
         """Removes any REPL containers that are still open.
         """
         for container in cls._containers:
@@ -46,25 +47,20 @@ class Handler:
         # those here.
         return 'cyber-dojo-repl-container-python-{}-{}'.format(kata.lower(), animal.lower())
 
-    async def create_repl_handler(self, request):
+    async def create_repl_handler(self, request, kata, animal):
         """Create a new REPL container.
 
         This will create a new container based on the image `self.image_name`
         and run it. This will also send a request to that container to start a
         new REPL.
         """
+        container_name = self._container_name(kata, animal)
 
-        kata = request.match_info['kata']
-        animal = request.match_info['animal']
-
-        client = request.app['docker_client']
-        name = self._container_name(kata, animal)
-
-        container = client.containers.run(
+        container = request.app.config.docker_client.containers.run(
             image=self.image_name,
-            name=name,
+            name=container_name,
             network=self.network_name,
-            ports={'{}/tcp'.format(self.repl_port): self.repl_port},
+            # ports={'{}/tcp'.format(self.repl_port): self.repl_port},
             restart_policy={'Name': 'on-failure'},
             detach=True)
 
@@ -77,26 +73,23 @@ class Handler:
         await asyncio.sleep(2)
 
         # Request that the REPL process is started
-        await request.app['client_session'].post(
-            'http://{}:{}/'.format(name, self.repl_port))
+        await request.app.config.client_session.post(
+            'http://{}:{}/'.format(container_name, self.repl_port))
 
         log.info('created REPL: %s', container.name)
 
-        return web.Response(status=web.HTTPCreated.status_code)
+        return sanic.response.HTTPResponse(status=201)  # created
 
-    async def delete_repl_handler(self, request):
+    async def delete_repl_handler(self, request, kata, animal):
         """Delete a REPL container.
 
         This will stop and remove an existing REPL container corresponding to
         the specified kata/animal pair.
         """
 
-        kata = request.match_info['kata']
-        animal = request.match_info['animal']
-
-        name = self._container_name(kata, animal)
-        client = request.app['docker_client']
-        container = client.containers.get(name)
+        container_name = self._container_name(kata, animal)
+        container = request.app.config.docker_client.containers.get(
+            container_name)
 
         container.stop()
         container.wait()
@@ -106,43 +99,33 @@ class Handler:
 
         log.info('deleted repl: %s', container.name)
 
-        return web.Response(status=web.HTTPOk.status_code)
+        return sanic.response.HTTPResponse(status=200)  # OK
 
-    async def websocket_handler(self, request):
+    async def websocket_handler(self, request, ws, kata, animal):
         """Create a websocket to the caller, piping it bi-directionally with the
         websocket on the REPL container.
         """
 
-        kata = request.match_info['kata']
-        animal = request.match_info['animal']
         name = self._container_name(kata, animal)
 
         log.info('initiating websocket. kata=%s animal=%s', kata, animal)
 
-        caller_socket = web.WebSocketResponse()
-        await caller_socket.prepare(request)
-
         url = 'ws://{}:{}'.format(name, self.repl_port)
-        repl_socket = await request.app['client_session'].ws_connect(url)
+        async with websockets.connect(url) as repl_socket:
 
-        async def pipe_repl_to_client():
-            "Forward messages from the REPL websocket to the client websocket."
-            async for msg in repl_socket:
-                log.info('from repl: %s', msg.data)
-                await caller_socket.send_str(msg.data)
+            async def pipe_repl_to_client():
+                async for msg in repl_socket:
+                    log.info('from repl: %s', msg)
+                    await ws.send(msg)
 
-        repl_to_client_task = request.app.loop.create_task(
-            pipe_repl_to_client())
+            repl_to_client_task = request.app.loop.create_task(
+                pipe_repl_to_client())
 
-        # Forward messages from the client websocket to the REPL websocket.
-        async for msg in caller_socket:
-            log.info('from client ws: %s', msg.data)
-            await repl_socket.send_str(msg.data)
+            # Forward messages from the client websocket to the REPL websocket.
+            async for msg in ws:
+                log.info('from client ws: %s', msg)
+                await repl_socket.send(msg)
 
-        repl_to_client_task.cancel()
+            repl_to_client_task.cancel()
 
-        await asyncio.gather(caller_socket.close(), repl_socket.close())
-
-        log.info('exiting websocket handler: kata=%s animal=%s', kata, animal)
-
-        return caller_socket
+            log.info('exiting websocket handler: kata=%s animal=%s', kata, animal)

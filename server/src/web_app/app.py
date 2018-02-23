@@ -2,30 +2,40 @@
 """
 
 import aiohttp
-from aiohttp import web
 import docker
+import docker.errors
+from sanic import Sanic
+import sanic.exceptions
 
 from .handlers import Handler
-from .middleware import docker_exceptions_middleware
 
 
-def _create_app():
+def _create_app(log_config):
     """Construct an Application instance.
 
     It will be configured with middleware and startup/shutdown handlers.
     """
-    app = web.Application()
+    app = Sanic(log_config=log_config)
 
-    async def startup(app):
-        app['docker_client'] = docker.from_env()
-        app['client_session'] = aiohttp.ClientSession()
+    @app.listener('before_server_start')
+    async def startup(app, loop):
+        app.config.docker_client = docker.from_env()
+        app.config.client_session = aiohttp.ClientSession()
 
-    async def cleanup(app):
-        await app['client_session'].close()
+    @app.listener('after_server_stop')
+    async def cleanup(app, loop):
+        await app.config.client_session.close()
 
-    app.on_startup.append(startup)
-    app.on_cleanup.append(cleanup)
-    app.middlewares.append(docker_exceptions_middleware)
+    @app.exception(docker.errors.NotFound)
+    def translate_not_found(request, exception):
+        raise sanic.exceptions.NotFound(
+            message=str(exception))
+
+    @app.exception(docker.errors.NotFound)
+    def translate_api_error(request, exception):
+        raise sanic.exceptions.SanicException(
+            message=str(exception),
+            status_code=exception.status_code)
 
     return app
 
@@ -35,16 +45,21 @@ def _configure_routes(app):
     router = Handler(image_name='cyberdojo/repl_container_python',
                      network_name='cyber-dojo',
                      repl_port=4647)
-    app.router.add_post('/repl/{kata}/{animal}', router.create_repl_handler)
-    app.router.add_delete('/repl/{kata}/{animal}', router.delete_repl_handler)
-    app.router.add_get('/repl/{kata}/{animal}', router.websocket_handler)
+    app.add_route(router.create_repl_handler,
+                  '/repl/<kata>/<animal>',
+                  methods=['POST'])
+    app.add_route(router.delete_repl_handler,
+                  '/repl/<kata>/<animal>',
+                  methods=['DELETE'])
+    app.add_websocket_route(router.websocket_handler, '/repl/<kata>/<animal>')
 
-    app.on_cleanup.insert(0, Handler.clean_up_containers)
+    app.listener('after_server_stop')(
+        lambda app, loop: Handler.clean_up_containers())
 
 
-def run(port):
+def run(host, port, log_config):
     """Create and run an app.
     """
-    app = _create_app()
+    app = _create_app(log_config)
     _configure_routes(app)
-    web.run_app(app, port=port)
+    app.run(host=host, port=port)
