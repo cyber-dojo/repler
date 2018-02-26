@@ -1,6 +1,8 @@
 import asyncio
 import logging
+import time
 
+import aiohttp
 import sanic.response
 import websockets
 
@@ -47,6 +49,40 @@ class Handler:
         # those here.
         return 'cyber-dojo-repl-container-python-{}-{}'.format(kata.lower(), animal.lower())
 
+    async def _wait_for_container(self, container, client_session, timeout=5.0):
+        """Wait for REPL container to be running and responding to HTTP traffic.
+
+        Args:
+            container: The `Container` instance to wait on.
+            client_session: An `aiohttp.ClientSession` to use for HTTP traffic.
+            timeout: The amount of time (seconds) to wait for the container to respond.
+
+        Raises:
+            ServerError: if the REPL container can't be reached by the
+                timeout.
+        """
+
+        start_time = time.time()
+
+        # Wait for the container to be running
+        while time.time() - start_time < timeout:
+            if container.status != 'running':
+                container.reload()
+            else:
+                try:
+                    response = await client_session.get(
+                        'http://{}:{}/is_alive'.format(container.name, self.repl_port))
+                    if response.status == 200:
+                        break
+                except aiohttp.ClientError as exc:
+                    log.warn('Client warning: %s', exc)
+
+            await asyncio.sleep(0.1)
+        else:
+            log.warn('timeout while waiting for REPL container to start.')
+            raise sanic.exceptions.ServerError(
+                'Unable to contact REPL container in {} seconds.'.format(timeout))
+
     async def create_repl_handler(self, request, kata, animal):
         """Create a new REPL container.
 
@@ -54,6 +90,8 @@ class Handler:
         and run it. This will also send a request to that container to start a
         new REPL.
         """
+        log.info('creating REPL')
+
         container_name = self._container_name(kata, animal)
 
         container = request.app.config.docker_client.containers.run(
@@ -66,12 +104,11 @@ class Handler:
 
         self._containers.add(container)
 
-        # Wait for the container to be running
-        while container.status != 'running':
-            container.reload()
+        log.info('waiting for container to run')
+        await self._wait_for_container(
+            container, request.app.config.client_session)
 
-        await asyncio.sleep(2)
-
+        log.info('asking repl container to start repl')
         # Request that the REPL process is started
         await request.app.config.client_session.post(
             'http://{}:{}/'.format(container_name, self.repl_port))
