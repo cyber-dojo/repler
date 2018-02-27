@@ -11,8 +11,11 @@ services:
     build:
       context: server
       args:
-         - CYBER_DOJO_RUNNER_HOME=/app
-         - PORT=4657
+         - CYBER_DOJO_RUNNER_HOME=${CYBER_DOJO_RUNNER_HOME}
+         - PORT=${CYBER_DOJO_RUNNER_SERVICE_PORT}
+         - REPL_PORT=${CYBER_DOJO_REPL_CONTAINER_PORT}
+         - NETWORK_NAME=${CYBER_DOJO_NETWORK_NAME}
+         - REPL_IMAGE_NAME=${CYBER_DOJO_REPL_IMAGE_NAME}
     user: root
     image: cyberdojo/runner_repl
     init: true
@@ -25,4 +28,4 @@ services:
     environment:
       - CYBER_DOJO_COVERAGE_ROOT
     ports:
-      - 4657:4657
+      - ${CYBER_DOJO_RUNNER_SERVICE_PORT}:${CYBER_DOJO_RUNNER_SERVICE_PORT}

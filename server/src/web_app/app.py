@@ -40,11 +40,11 @@ def _create_app(log_config):
     return app
 
 
-def _configure_routes(app):
+def _configure_routes(app, repl_port, image_name, network_name):
     "Add routes to the application."
-    router = Handler(image_name='cyberdojo/repl_container_python',
-                     network_name='cyber-dojo',
-                     repl_port=4647)
+    router = Handler(image_name=image_name,
+                     network_name=network_name,
+                     repl_port=repl_port)
     app.add_route(router.create_repl_handler,
                   '/repl/<kata>/<animal>',
                   methods=['POST'])
@@ -57,9 +57,12 @@ def _configure_routes(app):
         lambda app, loop: Handler.clean_up_containers())
 
 
-def run(host, port, log_config):
+def run(host, port, repl_port, network_name, image_name, log_config):
     """Create and run an app.
     """
     app = _create_app(log_config)
-    _configure_routes(app)
+    _configure_routes(app,
+                      repl_port=repl_port,
+                      image_name=image_name,
+                      network_name=network_name)
     app.run(host=host, port=port)
