@@ -111,7 +111,8 @@ class Handler:
         log.info('asking repl container to start repl')
         # Request that the REPL process is started
         await request.app.config.client_session.post(
-            'http://{}:{}/'.format(container_name, self.repl_port))
+            'http://{}:{}/'.format(container_name, self.repl_port),
+            data=request.body)
 
         log.info('created REPL: %s', container.name)
 
