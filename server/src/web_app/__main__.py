@@ -4,7 +4,7 @@
 import argparse
 import logging
 
-from .app import run
+from .app import create_app
 from .logging import logging_config
 
 
@@ -43,9 +43,10 @@ if args.auto_reload:
 level = logging.INFO if args.v else logging.WARNING
 level = logging.DEBUG if args.vv else level
 
-run(host=args.host,
-    port=args.port,
+app = create_app(
     repl_port=args.repl_port,
     network_name=args.network,
     image_name=args.repl_image,
     log_config=logging_config(level))
+
+app.run(host=args.host, port=args.port)
