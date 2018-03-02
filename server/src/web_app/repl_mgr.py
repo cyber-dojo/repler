@@ -61,7 +61,7 @@ class ReplManager:
         self.task = loop.create_task(self._pipe_repl_to_clients())
 
     def close(self):
-        self.repl_socket.close()
+        self.repl_socket.close(reason='ReplManager closed')
 
         self.container.stop()
         self.container.wait()
