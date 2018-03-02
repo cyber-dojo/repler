@@ -8,6 +8,7 @@ from sanic import Sanic
 import sanic.exceptions
 
 from .handlers import Handler
+from .logging import logging_config
 
 
 def _configure_routes(app, repl_port, image_name, network_name):
@@ -27,12 +28,12 @@ def _configure_routes(app, repl_port, image_name, network_name):
         lambda app, loop: handler.close())
 
 
-def create_app(repl_port, network_name, image_name, log_config):
+def create_app(repl_port, network_name, image_name, log_level):
     """Construct an Application instance.
 
     It will be configured with middleware and startup/shutdown handlers.
     """
-    app = Sanic(log_config=log_config)
+    app = Sanic(log_config=logging_config(log_level))
 
     @app.listener('before_server_start')
     async def startup(app, loop):

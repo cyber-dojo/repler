@@ -47,6 +47,6 @@ app = create_app(
     repl_port=args.repl_port,
     network_name=args.network,
     image_name=args.repl_image,
-    log_config=logging_config(level))
+    log_level=level)
 
 app.run(host=args.host, port=args.port)
