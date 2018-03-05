@@ -1,9 +1,22 @@
-FROM  cyberdojo/runner_repl_base
+FROM  alpine:latest
 LABEL maintainer=austin@sixty-north.com
+
+# Install os-provided packages
+RUN apk --update --no-cache add \
+bash \
+gcc \
+make \
+musl-dev \
+python3-dev
 
 ARG CYBER_DOJO_RUNNER_HOME
 WORKDIR ${CYBER_DOJO_RUNNER_HOME}
 
+# Install python dependencies
+COPY requirements.txt ${CYBER_DOJO_RUNNER_HOME}
+RUN pip3 install -r requirements.txt
+
+# Install the rest of the source code
 COPY . ${CYBER_DOJO_RUNNER_HOME}
 
 ARG PORT
