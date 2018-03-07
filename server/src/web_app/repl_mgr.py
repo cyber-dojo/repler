@@ -69,11 +69,20 @@ class ReplManager:
 
     async def _pipe_repl_to_clients(self):
         async for msg in self.repl_socket:
+            log.info('repl-runner received: %s', msg)
             for sock in self.websockets:
                 await sock.send(msg)
 
-    async def send(self, msg):
-        await self.repl_socket.send(msg)
+    async def process_websocket(self, ws):
+        self.websockets.add(ws)
+
+        # Forward messages from the client websocket to the REPL websocket.
+        try:
+            async for msg in ws:
+                log.debug('from client ws: %s', msg)
+                await self.repl_socket.send(msg)
+        finally:
+            self.websockets.remove(ws)
 
 
 def _container_name(kata, animal):

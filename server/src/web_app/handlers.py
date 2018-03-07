@@ -89,16 +89,6 @@ class Handler:
         except KeyError:
             return sanic.response.HTTPResponse(status=404)  # NotFound
 
-        repl_mgr.websockets.add(ws)
-
         log.info('initiating websocket: kata=%s animal=%s', kata, animal)
-
-        # Forward messages from the client websocket to the REPL websocket.
-        try:
-            async for msg in ws:
-                log.debug('from client ws: %s', msg)
-                await repl_mgr.send(msg)
-        finally:
-            repl_mgr.websockets.remove(ws)
-
+        await repl_mgr.process_websocket(ws)
         log.info('terminating websocket: kata=%s animal=%s', kata, animal)
