@@ -2,7 +2,7 @@
 
 cd src
 python3 -m web_app \
-        -v \
+        -vv \
         --port $PORT \
         --host 0.0.0.0 \
         --repl-port $REPL_PORT \

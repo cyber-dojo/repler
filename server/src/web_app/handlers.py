@@ -74,7 +74,7 @@ class Handler:
         except KeyError:
             return sanic.response.HTTPResponse(status=404)  # NotFound
 
-        repl_mgr.close()
+        repl_mgr.kill()
 
         return sanic.response.HTTPResponse(status=200)  # OK
 
