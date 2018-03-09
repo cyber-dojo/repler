@@ -2,7 +2,7 @@ import logging
 
 import sanic.response
 
-from .repl_mgr import ReplManager
+from .repl_container import ReplContainer, ReplPipe
 
 log = logging.getLogger()
 
@@ -21,15 +21,15 @@ class Handler:
         self.image_name = image_name
         self.network_name = network_name
         self.repl_port = repl_port
-        self.repl_mgrs = {}
+        self.repl_pipes = {}
 
     def close(self):
         """Removes any REPL containers that are still open.
         """
-        for repl_mgr in self.repl_mgrs:
-            repl_mgr.close()
+        for repl_pipe in self.repl_pipes:
+            repl_pipe.close()
 
-        self.repl_mgrs.clear()
+        self.repl_pipes.clear()
 
     async def create_repl_handler(self, request, kata, animal):
         """Create a new REPL container.
@@ -41,12 +41,10 @@ class Handler:
         log.info('creating REPL')
 
         key = (kata, animal)
-        if key in self.repl_mgrs:
+        if key in self.repl_pipes:
             return sanic.response.HTTPResponse(status=409)
 
-        repl_mgr = ReplManager()
-
-        await repl_mgr.start(
+        container = await ReplContainer.create(
             kata=kata,
             animal=animal,
             loop=request.app.loop,
@@ -57,7 +55,7 @@ class Handler:
             repl_port=self.repl_port,
             file_data=request.body)
 
-        self.repl_mgrs[key] = repl_mgr
+        self.repl_pipes[key] = ReplPipe(container)
 
         return sanic.response.HTTPResponse(status=201)  # created
 
@@ -70,11 +68,11 @@ class Handler:
 
         key = (kata, animal)
         try:
-            repl_mgr = self.repl_mgrs.pop(key)
+            repl_pipe = self.repl_pipes.pop(key)
         except KeyError:
             return sanic.response.HTTPResponse(status=404)  # NotFound
 
-        repl_mgr.kill()
+        repl_pipe.kill()
 
         return sanic.response.HTTPResponse(status=200)  # OK
 
@@ -85,10 +83,10 @@ class Handler:
 
         key = (kata, animal)
         try:
-            repl_mgr = self.repl_mgrs[key]
+            repl_pipe = self.repl_pipes[key]
         except KeyError:
             return sanic.response.HTTPResponse(status=404)  # NotFound
 
         log.info('initiating websocket: kata=%s animal=%s', kata, animal)
-        await repl_mgr.process_websocket(ws)
+        await repl_pipe.process_websocket(ws)
         log.info('terminating websocket: kata=%s animal=%s', kata, animal)
