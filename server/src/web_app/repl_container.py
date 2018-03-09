@@ -131,18 +131,11 @@ class ReplContainer:
         return self._container is not None
 
     async def set_websocket(self, ws):
-        log.debug('setting websocket')
         with await self._ws_cond:
-            log.debug('set websocket: lock acquired')
             self._ws = ws
-            log.debug('set websocket: notifying')
             self._ws_cond.notify()
-            log.debug('set websocket: notified')
-
-        log.debug('set websocket: exiting')
 
     async def _store_repl_msgs(self):
-        log.debug('starting _store_repl_messages')
         async for msg in self._repl_socket:
             log.info('repl-runner received: %s', msg)
             await self._repl_msgs.put(msg)
@@ -151,30 +144,21 @@ class ReplContainer:
         await self._repl_socket.send(msg)
 
     async def _relay_repl_msgs(self):
-        log.debug('starting _relay_repl_messages')
-        try:
-            while True:
-                msg = await self._repl_msgs.get()
-                log.info('popped from queue: %s', msg)
+        while True:
+            msg = await self._repl_msgs.get()
+            log.info('popped from queue: %s', msg)
 
-                # Acquire the websocket lock
-                with await self._ws_cond:
-                    log.info('unlocked condition: %s', self._ws)
+            # Acquire the websocket lock
+            with await self._ws_cond:
 
-                    # Wait until there's a websocket
-                    while self._ws is None:
-                        log.info('waiting...')
-                        await self._ws_cond.wait()
+                # Wait until there's a websocket
+                while self._ws is None:
+                    await self._ws_cond.wait()
 
-                    assert self._ws is not None
+                assert self._ws is not None
 
-                    log.info('sending from queue to client: %s', msg)
-                    await self._ws.send(msg)
-        except:
-            import sys
-            log.info('_relay_repl_msgs exception: %s', sys.exc_info()[1])
-        finally:
-            log.info('exiting _relay_repl_msgs')
+                log.info('sending from queue to client: %s', msg)
+                await self._ws.send(msg)
 
 
 class ReplPipe:
@@ -182,24 +166,24 @@ class ReplPipe:
     container.
     """
     def __init__(self, container):
-        self.container = container
+        self._container = container
 
     def kill(self):
-        self.container.kill()
+        self._container.kill()
 
     async def process_websocket(self, ws):
         """Sets the container's client websocket (into which the container will send
         REPL messages) to `ws`, and writes messages from `ws` into the REPL.
         """
-        await self.container.set_websocket(ws)
+        await self._container.set_websocket(ws)
 
         # Forward messages from the client websocket to the REPL websocket.
         async for msg in ws:
             log.debug('from client ws: %s', msg)
-            await self.container.send(msg)
+            await self._container.send(msg)
 
         log.info('websocket shutting down')
-        await self.container.set_websocket(None)
+        await self._container.set_websocket(None)
 
 
 def _container_name(kata, animal):
