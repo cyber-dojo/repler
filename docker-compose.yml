@@ -1,10 +1,10 @@
 
 version: '3.7'
 
-networks:
-  default:
-    external:
-      name: cyber-dojo
+#networks:
+#  default:
+#    external:
+#      name: cyber-dojo
 
 services:
 
@@ -14,7 +14,6 @@ services:
       args:
          - COMMIT_SHA
          - CYBER_DOJO_REPLER_HOME=${CYBER_DOJO_REPLER_HOME}
-         - PORT=${CYBER_DOJO_REPLER_SERVICE_PORT}
          - REPL_PORT=${CYBER_DOJO_REPL_CONTAINER_PORT}
          - NETWORK_NAME=${CYBER_DOJO_NETWORK_NAME}
          - REPL_IMAGE_NAME=${CYBER_DOJO_REPL_IMAGE_NAME}
@@ -27,4 +26,4 @@ services:
     restart: 'no'
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-    ports: [ "${CYBER_DOJO_REPLER_PORT}:${CYBER_DOJO_REPLER_PORT}" ]      
+    ports: [ "${CYBER_DOJO_REPLER_PORT}:${CYBER_DOJO_REPLER_PORT}" ]
