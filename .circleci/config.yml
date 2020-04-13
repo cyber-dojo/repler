@@ -36,9 +36,9 @@ workflows:
           filters:
             branches:
               only: [ master ]
-#      - deploy-to-beta:
-#          context: cyberdojo-context
-#          requires: [ build-image ]
+      - deploy-to-beta:
+          context: cyberdojo-context
+          requires: [ build-image ]
 #      - approve-to-prod:
 #          type: approval
 #          requires: [ deploy-to-beta ]
