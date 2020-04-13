@@ -1,9 +1,7 @@
 #!/bin/bash -Eeu
 
-readonly ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-
 # - - - - - - - - - - - - - - - - - - -
-container_down()
+containers_down()
 {
   docker-compose \
     --file "${ROOT_DIR}/docker-compose.yml" \
@@ -11,6 +9,3 @@ container_down()
     --remove-orphans \
     --volumes
 }
-
-# - - - - - - - - - - - - - - - - - - -
-container_down

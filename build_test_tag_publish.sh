@@ -13,7 +13,7 @@ source "${SH_DIR}/image_sha.sh"
 # - - - - - - - - - - - - - - - - - - - - - - - -
 build_test_tag_publish()
 {
-  build_images
+  build_image repler
   #containers_up "$@"
   #test_in_containers "$@"
   #containers_down

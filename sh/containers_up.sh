@@ -1,7 +1,5 @@
 #!/bin/bash -Eeu
 
-readonly ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-
 # - - - - - - - - - - - - - - - - - - -
 container_up()
 {
@@ -14,8 +12,3 @@ container_up()
     --force-recreate \
     "${service_name}"
 }
-
-# - - - - - - - - - - - - - - - - - - -
-
-container_up nginx
-sleep 1

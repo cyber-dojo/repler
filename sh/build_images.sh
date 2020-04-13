@@ -8,6 +8,14 @@ export $(versioner_env_vars)
 #- - - - - - - - - - - - - - - - - - - - - - - -
 build_images()
 {
+  build_image repler
+  build_image nginx
+  assert_equal SHA "$(git_commit_sha)" "$(image_sha)"
+}
+
+#- - - - - - - - - - - - - - - - - - - - - - - -
+build_image()
+{
   local -r service="${1}"
   export COMMIT_SHA="$(git_commit_sha)"
   docker-compose \
@@ -37,22 +45,3 @@ assert_equal()
     exit 42
   fi
 }
-
-#- - - - - - - - - - - - - - - - - - - - - - - -
-build_images repler
-build_images nginx
-assert_equal SHA "$(git_commit_sha)" "$(image_sha)"
-
-
-
-
-#!/bin/bash -Eeu
-
-#readonly ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-
-# build_images()
-# {
-#  docker-compose \
-#    --file ${ROOT_DIR}/docker-compose.yml \
-#    build
-# }
