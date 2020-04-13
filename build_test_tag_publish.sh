@@ -18,7 +18,7 @@ build_test_tag_publish()
   #test_in_containers "$@"
   #containers_down
   tag_the_image
-  #on_ci_publish_tagged_images
+  on_ci_publish_tagged_images
 }
 
 # - - - - - - - - - - - - - - - - - - - - - - - -

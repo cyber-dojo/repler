@@ -1,0 +1,46 @@
+
+fullnameOverride: "repler"
+
+daemonSet: true
+
+service:
+  annotations:
+    prometheus.io/scrape: "true"
+
+volumes:
+  - name: repler-tmp-dir
+    emptyDir:
+      medium: Memory
+      sizeLimit: "64Mi"
+  - name: docker-socket
+    hostPath:
+      path: /var/run/docker.sock
+      type: File
+
+containers:
+  - name: repler
+    volumeMounts:
+      - name: repler-tmp-dir
+        mountPath: /tmp
+        readOnly: false
+      - mountPath: /var/run/docker.sock
+        name: docker-socket
+    resources:
+      requests:
+        cpu: 10m
+        memory: 256Mi
+      limits:
+        cpu: 500m
+        memory: 4Gi
+    livenessProbe:
+      path: /alive?
+    readinessProbe:
+      path: /ready?
+
+envFromSecret: {}
+
+nodeSelector: {}
+
+affinity: {}
+
+tolerations: []
