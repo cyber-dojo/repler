@@ -11,7 +11,8 @@ build_images()
   export COMMIT_SHA="$(git_commit_sha)"
   docker-compose \
     --file ${ROOT_DIR}/docker-compose.yml \
-    build
+    build \
+    --build-arg CYBER_DOJO_REPLER_PORT=${CYBER_DOJO_REPLER_PORT}
   unset COMMIT_SHA
 }
 
