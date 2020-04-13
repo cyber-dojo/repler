@@ -1,0 +1,10 @@
+
+Initially the Docker image would not build.
+ujson would not build because there was no C++ compiler.
+So I've added g++ to apk --update.
+
+At the moment the Docker image is a fairly hefty 333MB.
+I am pretty sure that some Docker tricks can be pulled to
+uninstall gcc g++ make since they are almost certainly
+only needed for the build step. See for example
+https://github.com/cyber-dojo-languages/ruby/blob/master/docker/install.sh
