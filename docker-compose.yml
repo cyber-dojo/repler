@@ -29,5 +29,4 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
     environment:
       - CYBER_DOJO_COVERAGE_ROOT
-    ports:
-      - ${CYBER_DOJO_RUNNER_SERVICE_PORT}:${CYBER_DOJO_RUNNER_SERVICE_PORT}
+    ports: [ "${CYBER_DOJO_REPLER_PORT}:${CYBER_DOJO_REPLER_PORT}" ]      
