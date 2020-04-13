@@ -8,11 +8,13 @@ export $(versioner_env_vars)
 #- - - - - - - - - - - - - - - - - - - - - - - -
 build_images()
 {
+  local -r service="${1}"
   export COMMIT_SHA="$(git_commit_sha)"
   docker-compose \
     --file ${ROOT_DIR}/docker-compose.yml \
     build \
-    --build-arg CYBER_DOJO_REPLER_PORT=${CYBER_DOJO_REPLER_PORT}
+    --build-arg CYBER_DOJO_REPLER_PORT=${CYBER_DOJO_REPLER_PORT} \
+    "${service}"
   unset COMMIT_SHA
 }
 
@@ -37,7 +39,8 @@ assert_equal()
 }
 
 #- - - - - - - - - - - - - - - - - - - - - - - -
-build_images
+build_images repler
+build_images nginx
 assert_equal SHA "$(git_commit_sha)" "$(image_sha)"
 
 

@@ -23,6 +23,10 @@ class Handler:
         self.repl_port = repl_port
         self.repl_pipes = {}
 
+    def alive(self,request):
+        return sanic.response.json({"alive?": True})
+
+
     def close(self):
         """Removes any REPL containers that are still open.
         """

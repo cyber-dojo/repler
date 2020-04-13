@@ -8,6 +8,19 @@ version: '3.7'
 
 services:
 
+  nginx:
+    build:
+      context: nginx_stub
+      args:
+         - COMMIT_SHA
+    container_name: test_repler_nginx
+    depends_on:
+      - repler
+    image: cyberdojo/nginx_repler_stub
+    init: true
+    ports: [ "80:80" ]
+    user: root
+
   repler:
     build:
       context: server

@@ -50,7 +50,7 @@ curl_200()
 }
 
 #- - - - - - - - - - - - - - - - - - - - - - - - - - -
-port() { echo -n "${CYBER_DOJO_REPLER_PORT}"; }
+port() { printf 80; }
 controller() { echo -n repler; }
 tab() { printf '\t'; }
 

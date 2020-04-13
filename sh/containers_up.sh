@@ -17,5 +17,5 @@ container_up()
 
 # - - - - - - - - - - - - - - - - - - -
 
-container_up repler
+container_up nginx
 sleep 1
