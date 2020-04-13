@@ -1,4 +1,5 @@
-version: '2.2'
+
+version: '3.7'
 
 networks:
   default:
@@ -7,7 +8,7 @@ networks:
 
 services:
 
-  runner_repl:
+  repler:
     build:
       context: server
       args:
@@ -17,9 +18,9 @@ services:
          - NETWORK_NAME=${CYBER_DOJO_NETWORK_NAME}
          - REPL_IMAGE_NAME=${CYBER_DOJO_REPL_IMAGE_NAME}
     user: root
-    image: cyberdojo/runner_repl
+    image: cyberdojo/repler
     init: true
-    container_name: test_runner_repl_server
+    container_name: test_repler_server
     read_only: false
     tmpfs: /tmp
     restart: 'no'

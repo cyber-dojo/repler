@@ -1,13 +1,15 @@
 FROM  alpine:latest
 LABEL maintainer=austin@sixty-north.com
+LABEL maintainer=jon@jaggersoft.com
 
 # Install os-provided packages
 RUN apk --update --no-cache add \
-bash \
-gcc \
-make \
-musl-dev \
-python3-dev
+  bash \
+  gcc \
+  g++ \
+  make \
+  musl-dev \
+  python3-dev
 
 ARG CYBER_DOJO_RUNNER_HOME
 WORKDIR ${CYBER_DOJO_RUNNER_HOME}
