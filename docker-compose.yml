@@ -12,6 +12,7 @@ services:
     build:
       context: server
       args:
+         - COMMIT_SHA
          - CYBER_DOJO_RUNNER_HOME=${CYBER_DOJO_RUNNER_HOME}
          - PORT=${CYBER_DOJO_RUNNER_SERVICE_PORT}
          - REPL_PORT=${CYBER_DOJO_REPL_CONTAINER_PORT}
