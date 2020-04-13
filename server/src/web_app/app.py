@@ -19,6 +19,12 @@ def _configure_routes(app, repl_port, image_name, network_name):
     app.add_route(handler.alive,
                   '/alive',
                   methods=['GET'])
+    app.add_route(handler.ready,
+                  '/ready',
+                  methods=['GET'])
+    app.add_route(handler.sha,
+                  '/sha',
+                  methods=['GET'])
     app.add_route(handler.create_repl_handler,
                   '/repl/<kata>/<animal>',
                   methods=['POST'])

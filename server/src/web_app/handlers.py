@@ -1,5 +1,5 @@
 import logging
-
+import os
 import sanic.response
 
 from .repl_container import ReplContainer, ReplPipe
@@ -23,8 +23,21 @@ class Handler:
         self.repl_port = repl_port
         self.repl_pipes = {}
 
+
     def alive(self,request):
+        """ k8s liveness probe
+        """
         return sanic.response.json({"alive?": True})
+
+    def ready(self,request):
+        """ k8s readyness probe
+        """
+        return sanic.response.json({"ready?": True})
+
+    def sha(self,request):
+        """ cyber-dojo image tagging
+        """
+        return sanic.response.json({"sha": os.environ['SHA']})
 
 
     def close(self):
