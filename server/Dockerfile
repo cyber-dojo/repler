@@ -5,21 +5,18 @@ LABEL maintainer=jon@jaggersoft.com
 # Install os-provided packages
 RUN apk --update --no-cache add \
   bash \
-  gcc \
-  g++ \
-  make \
-  musl-dev \
   python3-dev
 
 ARG CYBER_DOJO_REPLER_HOME
 WORKDIR ${CYBER_DOJO_REPLER_HOME}
 
 # Install python dependencies
-COPY requirements.txt ${CYBER_DOJO_REPLER_HOME}
-RUN pip3 install -r requirements.txt
+COPY requirements.txt .
+COPY install.sh .
+RUN ./install.sh && rm ./install.sh
 
 # Install the rest of the source code
-COPY . ${CYBER_DOJO_REPLER_HOME}
+COPY . .
 
 ARG REPL_PORT
 ENV REPL_PORT ${REPL_PORT}
