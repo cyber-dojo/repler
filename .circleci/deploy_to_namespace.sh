@@ -41,4 +41,4 @@ helm upgrade \
   --values .circleci/repler-values.yaml \
   ${NAMESPACE}-repler \
   praqma/cyber-dojo-service \
-  --version 0.2.4
+  --version 0.2.5

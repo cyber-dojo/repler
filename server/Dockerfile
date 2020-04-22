@@ -2,7 +2,7 @@ FROM  alpine:latest
 LABEL maintainer=austin@sixty-north.com
 LABEL maintainer=jon@jaggersoft.com
 
-# Install os-provided packages
+# Install base apps
 RUN apk --update --no-cache add \
   bash \
   python3-dev
@@ -15,7 +15,7 @@ COPY requirements.txt .
 COPY install.sh .
 RUN ./install.sh && rm ./install.sh
 
-# Install the rest of the source code
+# Install the source code
 COPY . .
 
 ARG REPL_PORT
