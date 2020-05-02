@@ -10,12 +10,11 @@ import sanic.exceptions
 from .handlers import Handler
 from .logging import logging_config
 
-
 def _configure_routes(app, repl_port, image_name, network_name):
     "Add routes to the application."
     handler = Handler(image_name=image_name,
-                     network_name=network_name,
-                     repl_port=repl_port)
+                      network_name=network_name,
+                      repl_port=repl_port)
     app.add_route(handler.alive,
                   '/alive',
                   methods=['GET'])
@@ -26,12 +25,12 @@ def _configure_routes(app, repl_port, image_name, network_name):
                   '/sha',
                   methods=['GET'])
     app.add_route(handler.create_repl_handler,
-                  '/repl/<kata>/<animal>',
+                  '/repl/<kata>',
                   methods=['POST'])
     app.add_route(handler.delete_repl_handler,
-                  '/repl/<kata>/<animal>',
+                  '/repl/<kata>',
                   methods=['DELETE'])
-    app.add_websocket_route(handler.websocket_handler, '/repl/<kata>/<animal>')
+    app.add_websocket_route(handler.websocket_handler, '/repl/<kata>')
 
     app.listener('after_server_stop')(
         lambda app, loop: handler.close())
@@ -39,7 +38,6 @@ def _configure_routes(app, repl_port, image_name, network_name):
 
 def create_app(repl_port, network_name, image_name, log_level):
     """Construct an Application instance.
-
     It will be configured with middleware and startup/shutdown handlers.
     """
     app = Sanic(log_config=logging_config(log_level))

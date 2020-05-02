@@ -9,7 +9,6 @@ log = logging.getLogger()
 
 class Handler:
     """HTTP request handlers for the server.
-
     Args:
         image_name: the name of the docker image to use for REPL containers.
         network_name: The name of the docker network to use for the container.
@@ -35,7 +34,7 @@ class Handler:
         return sanic.response.json({"ready?": True})
 
     def sha(self,request):
-        """ cyber-dojo image tagging
+        """ cyber-dojo image sha (tag) identity
         """
         return sanic.response.json({"sha": os.environ['SHA']})
 
@@ -48,22 +47,20 @@ class Handler:
 
         self.repl_pipes.clear()
 
-    async def create_repl_handler(self, request, kata, animal):
+    async def create_repl_handler(self, request, kata):
         """Create a new REPL container.
-
         This will create a new container based on the image `self.image_name`
         and run it. This will also send a request to that container to start a
         new REPL.
         """
         log.info('creating REPL')
 
-        key = (kata, animal)
+        key = (kata)
         if key in self.repl_pipes:
             return sanic.response.HTTPResponse(status=409)
 
         container = await ReplContainer.create(
             kata=kata,
-            animal=animal,
             loop=request.app.loop,
             docker_client=request.app.config.docker_client,
             http_session=request.app.config.http_session,
@@ -76,14 +73,13 @@ class Handler:
 
         return sanic.response.HTTPResponse(status=201)  # created
 
-    async def delete_repl_handler(self, request, kata, animal):
+    async def delete_repl_handler(self, request, kata):
         """Delete a REPL container.
-
         This will stop and remove an existing REPL container corresponding to
-        the specified kata/animal pair.
+        the specified kata.
         """
 
-        key = (kata, animal)
+        key = (kata)
         try:
             repl_pipe = self.repl_pipes.pop(key)
         except KeyError:
@@ -93,17 +89,17 @@ class Handler:
 
         return sanic.response.HTTPResponse(status=200)  # OK
 
-    async def websocket_handler(self, request, ws, kata, animal):
+    async def websocket_handler(self, request, ws, kata):
         """Create a websocket to the caller, piping it bi-directionally with the
         websocket on the REPL container.
         """
 
-        key = (kata, animal)
+        key = (kata)
         try:
             repl_pipe = self.repl_pipes[key]
         except KeyError:
             return sanic.response.HTTPResponse(status=404)  # NotFound
 
-        log.info('initiating websocket: kata=%s animal=%s', kata, animal)
+        log.info('initiating websocket: kata=%s', kata)
         await repl_pipe.process_websocket(ws)
-        log.info('terminating websocket: kata=%s animal=%s', kata, animal)
+        log.info('terminating websocket: kata=%s', kata)

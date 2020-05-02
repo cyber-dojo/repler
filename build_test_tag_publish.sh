@@ -27,6 +27,8 @@ tag_the_image()
   local -r image="$(image_name)"
   local -r sha="$(image_sha)"
   local -r tag="${sha:0:7}"
+  echo "${sha}"
+  echo "${tag}"
   docker tag "${image}:latest" "${image}:${tag}"
 }
 

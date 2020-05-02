@@ -7,7 +7,6 @@ import logging
 from .app import create_app
 from .logging import logging_config
 
-
 parser = argparse.ArgumentParser()
 parser.add_argument(
     '-p', '--port', type=int, default=None,

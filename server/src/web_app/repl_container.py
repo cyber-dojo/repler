@@ -27,7 +27,6 @@ class ReplContainer:
 
     @staticmethod
     async def create(kata,
-                     animal,
                      loop,
                      docker_client,
                      http_session,
@@ -36,10 +35,8 @@ class ReplContainer:
                      repl_port,
                      file_data):
         """Start a REPL container and socket to talk with it.
-
         Args:
             kata: The kata ID for the REPL
-            animal: The avatar for the REPL
             loop: The `asyncio` event loop to use
             docker_client: The `docker.Client` to use for container control
             http_session: The `aiohttp.ClientSession` to use for HTTP
@@ -52,13 +49,13 @@ class ReplContainer:
                 container.
 
         Raises:
-            sanic.exceptions.SanicException: If a container for the kata/animal
-                pair already exists. (Status=409)
+            sanic.exceptions.SanicException: If a container for the kata
+                already exists. (Status=409)
 
         Returns:
             A `ReplContainer` instance.
         """
-        name = _container_name(kata, animal)
+        name = _container_name(kata)
 
         # If the container exists, do nothing and return 409 (Conflict).
         try:
@@ -186,16 +183,13 @@ class ReplPipe:
         await self._container.set_websocket(None)
 
 
-def _container_name(kata, animal):
-    """Calculate the name of the container for a given kata/animal pair.
+def _container_name(kata):
+    """Calculate the name of the container for a given kata.
     """
-
     # Important: this accounts for docker's limitation that container names
     # can only be lower case. The user might (and probably will) include
-    # upper-case letters in their kata and animal names. We lower-case
-    # those here.
-    return 'cyber-dojo-repl-container-python-{}-{}'.format(kata.lower(),
-                                                           animal.lower())
+    # upper-case letters in their kata id. We lower-case those here.
+    return 'cyber-dojo-repl-container-python-{}'.format(kata.lower())
 
 
 async def _wait_for_container(repl_port,
@@ -203,17 +197,14 @@ async def _wait_for_container(repl_port,
                               http_session,
                               timeout=5.0):
     """Wait for REPL container to be running and responding to HTTP traffic.
-
     Args:
         container: The `Container` instance to wait on.
         http_session: An `aiohttp.ClientSession` to use for HTTP traffic.
         timeout: The amount of time (seconds) to wait for the container to
             respond.
-
     Raises:
         ServerError: if the REPL container can't be reached by the
             timeout.
-
     """
 
     start_time = time.time()
