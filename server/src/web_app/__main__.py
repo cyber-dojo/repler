@@ -1,4 +1,4 @@
-"""Main program for the cyber-dojo runner_repl web_app.
+"""Main program for the cyber-dojo repler web_app.
 """
 
 import argparse

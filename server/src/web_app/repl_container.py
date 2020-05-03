@@ -134,7 +134,7 @@ class ReplContainer:
 
     async def _store_repl_msgs(self):
         async for msg in self._repl_socket:
-            log.info('repl-runner received: %s', msg)
+            log.info('repler received: %s', msg)
             await self._repl_msgs.put(msg)
 
     async def send(self, msg):
