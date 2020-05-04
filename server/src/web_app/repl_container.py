@@ -71,6 +71,7 @@ class ReplContainer:
             image=image_name,
             name=name,
             network=network_name,
+            user='nobody',
             restart_policy={'Name': 'on-failure'},
             detach=True)
 
