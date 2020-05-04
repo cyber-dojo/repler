@@ -189,7 +189,7 @@ def _container_name(kata):
     # Important: this accounts for docker's limitation that container names
     # can only be lower case. The user might (and probably will) include
     # upper-case letters in their kata id. We lower-case those here.
-    return 'cyber-dojo-repl-container-python-{}'.format(kata.lower())
+    return 'cyber-dojo-repler-container-python-{}'.format(kata.lower())
 
 
 async def _wait_for_container(repl_port,
