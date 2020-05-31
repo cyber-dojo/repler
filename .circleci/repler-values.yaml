@@ -1,7 +1,7 @@
 
 fullnameOverride: "repler"
 
-replicaCount: 0
+replicaCount: 1
 
 service:
   annotations:
