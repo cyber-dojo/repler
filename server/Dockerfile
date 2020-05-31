@@ -5,7 +5,8 @@ LABEL maintainer=jon@jaggersoft.com
 # Install base apps
 RUN apk --update --no-cache add \
   bash \
-  python3-dev
+  python3-dev \
+  && pip3 install --no-cache-dir --upgrade pip
 
 ARG CYBER_DOJO_REPLER_HOME
 WORKDIR ${CYBER_DOJO_REPLER_HOME}
