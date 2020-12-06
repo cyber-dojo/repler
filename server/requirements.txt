@@ -1,3 +1,4 @@
+multidict==5.0.0
 aiohttp # for async requests
 docker
 sanic
