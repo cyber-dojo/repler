@@ -40,7 +40,7 @@ def create_app(repl_port, network_name, image_name, log_level):
     """Construct an Application instance.
     It will be configured with middleware and startup/shutdown handlers.
     """
-    app = Sanic(log_config=logging_config(log_level))
+    app = Sanic(name='cyber-dojo-repler', log_config=logging_config(log_level))
 
     @app.listener('before_server_start')
     async def startup(app, loop):
