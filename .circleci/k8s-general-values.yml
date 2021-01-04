@@ -40,3 +40,6 @@ containers:
       path: /alive?
     readinessProbe:
       path: /ready?
+    env:
+      CYBER_DOJO_PROMETHEUS: "true"
+      CYBER_DOJO_REPLER_PORT: "4657"
