@@ -4,8 +4,7 @@
 # cyberdojo/repler docker image
 
 - The source for the [cyberdojo/repler](https://hub.docker.com/r/cyberdojo/repler/tags) Docker image.
-- A docker-containerized micro-service for [cyber-dojo](http://cyber-dojo.org).
-- An http service, on port 4657.
+- A docker-containerized http micro-service for [cyber-dojo](http://cyber-dojo.org).
 
 - - - -
 * ...
