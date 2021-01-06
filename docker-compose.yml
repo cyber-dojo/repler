@@ -9,19 +9,20 @@ version: '3.7'
 services:
 
   nginx:
+    image: cyberdojo/nginx_repler_stub
     build:
       context: nginx_stub
-      args:
-         - COMMIT_SHA
+      args: [ COMMIT_SHA ]
     container_name: test_repler_nginx
+    env_file: [ .env ]
     depends_on:
       - repler
-    image: cyberdojo/nginx_repler_stub
     init: true
     ports: [ "80:80" ]
     user: root
 
   repler:
+    image: cyberdojo/repler
     build:
       context: server
       args:
@@ -30,13 +31,13 @@ services:
          - REPL_PORT=${CYBER_DOJO_REPL_CONTAINER_PORT}
          - NETWORK_NAME=${CYBER_DOJO_NETWORK_NAME}
          - REPL_IMAGE_NAME=${CYBER_DOJO_REPL_IMAGE_NAME}
+    ports: [ "${CYBER_DOJO_REPLER_PORT}:${CYBER_DOJO_REPLER_PORT}" ]
     user: root
-    image: cyberdojo/repler
     init: true
     container_name: test_repler_server
+    env_file: [ .env ]
     read_only: false
     tmpfs: /tmp
     restart: 'no'
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-    ports: [ "${CYBER_DOJO_REPLER_PORT}:${CYBER_DOJO_REPLER_PORT}" ]
