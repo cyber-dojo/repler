@@ -1,4 +1,4 @@
-FROM  alpine:latest
+FROM  alpine:3.13
 LABEL maintainer=austin@sixty-north.com
 LABEL maintainer=jon@jaggersoft.com
 
