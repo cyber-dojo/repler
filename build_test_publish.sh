@@ -8,20 +8,20 @@ source "${SH_DIR}/build_images.sh"
 #source "${SH_DIR}/containers_up.sh"
 source "${SH_DIR}/image_name.sh"
 source "${SH_DIR}/image_sha.sh"
-source "${SH_DIR}/merkely.sh"
+source "${SH_DIR}/kosli.sh"
 #source "${SH_DIR}/test_in_containers.sh"
 
 # - - - - - - - - - - - - - - - - - - - - - - - -
 build_test_tag_publish()
 {
-  on_ci_merkely_declare_pipeline
+  on_ci_kosli_declare_pipeline
   build_image repler
   #containers_up "$@"
   #test_in_containers "$@"
   #containers_down
   tag_the_image
   on_ci_publish_tagged_images
-  on_ci_merkely_log_artifact
+  on_ci_kosli_log_artifact
 }
 
 # - - - - - - - - - - - - - - - - - - - - - - - -
@@ -38,7 +38,7 @@ tag_the_image()
 # - - - - - - - - - - - - - - - - - - - - - - - -
 on_ci()
 {
-  [ -n "${CIRCLECI:-}" ]
+  [ -n "${CI:-}" ]
 }
 
 # - - - - - - - - - - - - - - - - - - - - - - - -

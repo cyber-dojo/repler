@@ -1,7 +1,4 @@
-
-[![CircleCI](https://circleci.com/gh/cyber-dojo/repler.svg?style=svg)](https://circleci.com/gh/cyber-dojo/repler)
-
-# cyberdojo/repler docker image
+![Github Action (main)](https://github.com/cyber-dojo/repler/actions/workflows/main.yml/badge.svg)
 
 - The source for the [cyberdojo/repler](https://hub.docker.com/r/cyberdojo/repler/tags) Docker image.
 - A docker-containerized http micro-service for [cyber-dojo](http://cyber-dojo.org).

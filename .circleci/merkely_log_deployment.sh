@@ -1,27 +1,27 @@
 #!/bin/bash -Eeu
 
+readonly MERKELY_CHANGE=merkely/change:latest
+readonly MERKELY_OWNER=cyber-dojo
+readonly MERKELY_PIPELINE=repler
+
 # - - - - - - - - - - - - - - - - - - -
-merkely_log_deployment()
+kosli_fingerprint()
+{
+  echo "docker://${CYBER_DOJO_REPLER_IMAGE}:${CYBER_DOJO_REPLER_TAG}"
+}
+
+# - - - - - - - - - - - - - - - - - - -
+kosli_log_deployment()
 {
   local -r MERKELY_ENVIRONMENT="${1}"
   local -r MERKELY_HOST="${2}"
-  local -r MERKELY_OWNER=cyber-dojo
-  local -r MERKELY_PIPELINE=repler
-
-  # Set CYBER_DOJO_REPLER_IMAGE, CYBER_DOJO_REPLER_TAG
-  local -r VERSIONER_URL=https://raw.githubusercontent.com/cyber-dojo/versioner/master
-  export $(curl "${VERSIONER_URL}/app/.env")
-  local -r CYBER_DOJO_REPLER_TAG="${CIRCLE_SHA1:0:7}"
-
-  # Pull image so merkely_fingerprint() works
-  docker pull ${CYBER_DOJO_REPLER_IMAGE}:${CYBER_DOJO_REPLER_TAG}
 
 	docker run \
     --env MERKELY_COMMAND=log_deployment \
     --env MERKELY_OWNER=${MERKELY_OWNER} \
     --env MERKELY_PIPELINE=${MERKELY_PIPELINE} \
-    --env MERKELY_FINGERPRINT=$(merkely_fingerprint) \
-    --env MERKELY_DESCRIPTION="Deployed to ${environment} in circleci pipeline" \
+    --env MERKELY_FINGERPRINT=$(kosli_fingerprint) \
+    --env MERKELY_DESCRIPTION="Deployed to ${environment} in Github Actions pipeline" \
     --env MERKELY_ENVIRONMENT="${MERKELY_ENVIRONMENT}" \
     --env MERKELY_CI_BUILD_URL=${CIRCLE_BUILD_URL} \
     --env MERKELY_API_TOKEN=${MERKELY_API_TOKEN} \
@@ -32,8 +32,11 @@ merkely_log_deployment()
 }
 
 # - - - - - - - - - - - - - - - - - - -
-merkely_fingerprint()
-{
-  echo "docker://${CYBER_DOJO_REPLER_IMAGE}:${CYBER_DOJO_REPLER_TAG}"
-}
+VERSIONER_URL=https://raw.githubusercontent.com/cyber-dojo/versioner/master
+export $(curl "${VERSIONER_URL}/app/.env")
+export CYBER_DOJO_REPLER_TAG="${CIRCLE_SHA1:0:7}"
+docker pull ${CYBER_DOJO_REPLER_IMAGE}:${CYBER_DOJO_REPLER_TAG}
 
+readonly ENVIRONMENT="${1}"
+readonly HOSTNAME="${2}"
+kosli_log_deployment "${ENVIRONMENT}" "${HOSTNAME}"
