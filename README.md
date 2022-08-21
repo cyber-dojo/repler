@@ -1,4 +1,4 @@
-![Github Action (main)](https://github.com/cyber-dojo/repler/actions/workflows/main.yml/badge.svg)
+[![Github Action (main)](https://github.com/cyber-dojo/repler/actions/workflows/main.yml/badge.svg)](https://github.com/cyber-dojo/repler/actions)
 
 - The source for the [cyberdojo/repler](https://hub.docker.com/r/cyberdojo/repler/tags) Docker image.
 - A docker-containerized http micro-service for [cyber-dojo](http://cyber-dojo.org).
