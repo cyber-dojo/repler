@@ -24,7 +24,7 @@ kosli_report_artifact_creation()
 {
   local -r hostname="${1}"
 
-  push "$(root_dir)"
+  pushd "$(root_dir)"
 
   kosli pipeline artifact report creation \
     "$(artifact_name)" \
