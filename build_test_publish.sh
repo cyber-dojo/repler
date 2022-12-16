@@ -18,8 +18,8 @@ tag_the_image()
   local -r image="$(image_name)"
   local -r sha="$(image_sha)"
   local -r tag="${sha:0:7}"
-  echo "${sha}"
-  echo "${tag}"
+  echo "CYBER_DOJO_REPLER_SHA=${sha}"
+  echo "CYBER_DOJO_REPLER_TAG=${tag}"
   docker tag "${image}:latest" "${image}:${tag}"
 }
 
