@@ -56,3 +56,4 @@ build_image repler
 tag_the_image
 on_ci_publish_tagged_images
 on_ci_kosli_report_artifact_creation
+on_ci_kosli_assert_artifact

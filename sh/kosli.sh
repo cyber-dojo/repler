@@ -91,8 +91,8 @@ on_ci_kosli_declare_pipeline()
 on_ci_kosli_report_artifact_creation()
 {
   if on_ci ; then
-    kosli_log_artifact "${KOSLI_HOST_STAGING}"
-    kosli_log_artifact "${KOSLI_HOST_PRODUCTION}"
+    kosli_report_artifact_creation "${KOSLI_HOST_STAGING}"
+    kosli_report_artifact_creation "${KOSLI_HOST_PRODUCTION}"
   fi
 }
 
