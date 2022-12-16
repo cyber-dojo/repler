@@ -1,28 +1,16 @@
-#!/bin/bash -Eeu
+#!/usr/bin/env bash
+set -Eeu
 
 readonly SH_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/sh" && pwd)"
-source "${SH_DIR}/versioner_env_vars.sh"
-export $(versioner_env_vars)
+source "${SH_DIR}/kosli.sh"
 source "${SH_DIR}/build_images.sh"
 #source "${SH_DIR}/containers_down.sh"
 #source "${SH_DIR}/containers_up.sh"
 source "${SH_DIR}/image_name.sh"
 source "${SH_DIR}/image_sha.sh"
-source "${SH_DIR}/kosli.sh"
 #source "${SH_DIR}/test_in_containers.sh"
-
-# - - - - - - - - - - - - - - - - - - - - - - - -
-build_test_tag_publish()
-{
-  on_ci_kosli_declare_pipeline
-  build_image repler
-  #containers_up "$@"
-  #test_in_containers "$@"
-  #containers_down
-  tag_the_image
-  on_ci_publish_tagged_images
-  on_ci_kosli_log_artifact
-}
+source "${SH_DIR}/echo_versioner_env_vars.sh"
+export $(echo_versioner_env_vars)
 
 # - - - - - - - - - - - - - - - - - - - - - - - -
 tag_the_image()
@@ -60,4 +48,11 @@ on_ci_publish_tagged_images()
 }
 
 # - - - - - - - - - - - - - - - - - - - - - - - -
-build_test_tag_publish "$@"
+on_ci_kosli_declare_pipeline
+build_image repler
+#containers_up "$@"
+#test_in_containers "$@"
+#containers_down
+tag_the_image
+on_ci_publish_tagged_images
+on_ci_kosli_report_artifact_creation

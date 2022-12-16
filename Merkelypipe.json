@@ -1,9 +1,0 @@
-{
-    "owner": "cyber-dojo",
-    "name": "repler",
-    "description": "REPL for Python images",
-    "visibility": "public",
-    "template": [
-        "artifact"
-    ]
-}

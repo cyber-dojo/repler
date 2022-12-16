@@ -1,9 +1,10 @@
-#!/bin/bash -Eeu
+#!/usr/bin/env bash
+set -Eeu
 
 readonly ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-source "${ROOT_DIR}/sh/versioner_env_vars.sh"
+source "${ROOT_DIR}/sh/echo_versioner_env_vars.sh"
 source "${ROOT_DIR}/sh/image_sha.sh"
-export $(versioner_env_vars)
+export $(echo_versioner_env_vars)
 
 #- - - - - - - - - - - - - - - - - - - - - - - -
 build_images()

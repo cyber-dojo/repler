@@ -1,8 +1,9 @@
-#!/bin/bash -Eeu
+#!/usr/bin/env bash
+set -Eeu
 
-versioner_env_vars()
+echo_versioner_env_vars()
 {
-  local -r sha="$(cd "${ROOT_DIR}" && git rev-parse HEAD)"
+  local -r sha="$(cd "$(root_dir)" && git rev-parse HEAD)"
   docker run --rm cyberdojo/versioner:latest
 
   echo CYBER_DOJO_REPLER_SHA="${sha}"
