@@ -48,12 +48,12 @@ on_ci_publish_tagged_images()
 }
 
 # - - - - - - - - - - - - - - - - - - - - - - - -
-on_ci_kosli_declare_pipeline
+on_ci_kosli_create_flow
 build_image repler
 #containers_up "$@"
 #test_in_containers "$@"
 #containers_down
 tag_the_image
 on_ci_publish_tagged_images
-on_ci_kosli_report_artifact_creation
+on_ci_kosli_report_artifact
 on_ci_kosli_assert_artifact

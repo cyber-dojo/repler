@@ -2,32 +2,31 @@
 set -Eeu
 
 export KOSLI_OWNER=cyber-dojo
-export KOSLI_PIPELINE=repler
+export KOSLI_FLOW=repler
 
 readonly KOSLI_HOST_STAGING=https://staging.app.kosli.com
 readonly KOSLI_HOST_PRODUCTION=https://app.kosli.com
 
 # - - - - - - - - - - - - - - - - - - -
-kosli_declare_pipeline()
+kosli_create_flow()
 {
   local -r hostname="${1}"
 
-  kosli pipeline declare \
+  kosli create flow "${KOSLI_FLOW}" \
     --description "REPL for Python images" \
-    --visibility public \
+    --host "${hostname}" \
     --template artifact \
-    --host "${hostname}"
+    --visibility public
 }
 
 # - - - - - - - - - - - - - - - - - - -
-kosli_report_artifact_creation()
+kosli_report_artifact()
 {
   local -r hostname="${1}"
 
   pushd "$(root_dir)"
 
-  kosli pipeline artifact report creation \
-    "$(artifact_name)" \
+  kosli report artifact "$(artifact_name)" \
       --artifact-type docker \
       --host "${hostname}"
 
@@ -39,8 +38,7 @@ kosli_assert_artifact()
 {
   local -r hostname="${1}"
 
-  kosli assert artifact \
-    "$(artifact_name)" \
+  kosli assert artifact "$(artifact_name)" \
       --artifact-type docker \
       --host "${hostname}"
 }
@@ -55,8 +53,7 @@ kosli_expect_deployment()
   # and the image must be present to get its sha256 fingerprint.
   docker pull "$(artifact_name)"
 
-  kosli expect deployment \
-    "$(artifact_name)" \
+  kosli expect deployment "$(artifact_name)" \
     --artifact-type docker \
     --description "Deployed to ${environment} in Github Actions pipeline" \
     --environment "${environment}" \
@@ -64,7 +61,8 @@ kosli_expect_deployment()
 }
 
 # - - - - - - - - - - - - - - - - - - -
-artifact_name() {
+artifact_name()
+{
   source "$(root_dir)/sh/echo_versioner_env_vars.sh"
   export $(echo_versioner_env_vars)
   echo "${CYBER_DOJO_REPLER_IMAGE}:${CYBER_DOJO_REPLER_TAG}"
@@ -79,31 +77,30 @@ root_dir()
 }
 
 # - - - - - - - - - - - - - - - - - - -
-on_ci_kosli_declare_pipeline()
+on_ci_kosli_create_flow()
 {
-  if on_ci ; then
-    kosli_declare_pipeline "${KOSLI_HOST_STAGING}"
-    kosli_declare_pipeline "${KOSLI_HOST_PRODUCTION}"
+  if on_ci; then
+    kosli_create_flow "${KOSLI_HOST_STAGING}"
+    kosli_create_flow "${KOSLI_HOST_PRODUCTION}"
   fi
 }
 
 # - - - - - - - - - - - - - - - - - - -
-on_ci_kosli_report_artifact_creation()
+on_ci_kosli_report_artifact()
 {
-  if on_ci ; then
-    kosli_report_artifact_creation "${KOSLI_HOST_STAGING}"
-    kosli_report_artifact_creation "${KOSLI_HOST_PRODUCTION}"
+  if on_ci; then
+    kosli_report_artifact "${KOSLI_HOST_STAGING}"
+    kosli_report_artifact "${KOSLI_HOST_PRODUCTION}"
   fi
 }
 
 # - - - - - - - - - - - - - - - - - - -
 on_ci_kosli_assert_artifact()
 {
-  if ! on_ci ; then
-    return
+  if on_ci; then
+    kosli_assert_artifact "${KOSLI_HOST_STAGING}"
+    kosli_assert_artifact "${KOSLI_HOST_PRODUCTION}"
   fi
-  kosli_assert_artifact "${KOSLI_HOST_STAGING}"
-  kosli_assert_artifact "${KOSLI_HOST_PRODUCTION}"
 }
 
 # - - - - - - - - - - - - - - - - - - -
