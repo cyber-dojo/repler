@@ -11,6 +11,7 @@ module "ecs-service" {
   ecr_replication_targets   = var.ecr_replication_targets
   ecr_replication_origin    = var.ecr_replication_origin
   ecs_wait_for_steady_state = true
+  desired_count             = 0
   volumes = [
     {
       name          = "docker_socket"
